@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import Navbar from "./Navbar";
+import Navbar from "./Navbar.component.";
 
 describe("Navbar", () => {
-  it("renders MY SOCIAL brand in uppercase", () => {
+  it("renders Social brand", () => {
     render(<Navbar />);
 
-    expect(screen.getByRole("link", { name: "MY SOCIAL" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Social" })).toBeInTheDocument();
   });
 
   it("does not render center navigation links when section is commented out", () => {
