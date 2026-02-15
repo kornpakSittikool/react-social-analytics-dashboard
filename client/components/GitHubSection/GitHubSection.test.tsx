@@ -58,7 +58,7 @@ describe("GitHubSection", () => {
       {
         id: 2,
         name: "beta",
-        description: "Beta repo",
+        description: null,
         html_url: "https://github.com/octocat/beta",
         stargazers_count: 5,
         forks_count: 2,
@@ -82,7 +82,8 @@ describe("GitHubSection", () => {
 
     render(<GitHubSection username="octocat" />);
 
-    expect(await screen.findByText(profile.name)).toBeInTheDocument();
+    const expectedProfileName = profile.name ?? profile.login;
+    expect(await screen.findByText(expectedProfileName)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: `@${profile.login}` })).toHaveAttribute(
       "href",
       profile.html_url,
@@ -119,6 +120,7 @@ describe("GitHubSection", () => {
       "href",
       "https://github.com/octocat/beta",
     );
+    expect(screen.getByText("No details")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /forked/i })).not.toBeInTheDocument();
   });
 
