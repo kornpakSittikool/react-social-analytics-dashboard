@@ -9,10 +9,39 @@
 - TypeScript 5
 - Tailwind CSS 4
 - ESLint 9
+- Nginx (serve static build)
+- Docker Compose
 
-## การติดตั้ง
+## Prerequisites
 
-1. เข้าโฟลเดอร์โปรเจกต์ฝั่งเว็บ
+- Node.js 20+ (กรณีรันแบบไม่ใช้ Docker)
+- Docker Desktop (กรณีรันด้วย Docker Compose)
+
+## Run With Docker Compose (Recommended)
+
+โปรเจกต์นี้ build ฝั่ง `client` เป็น static export แล้วให้ `nginx` serve ผ่าน container
+
+1. Build และ start container
+
+```bash
+docker compose up --build
+```
+
+2. เปิดใช้งานที่
+
+```text
+http://localhost:3001
+```
+
+3. Stop container
+
+```bash
+docker compose down
+```
+
+## Run Without Docker
+
+1. เข้าโฟลเดอร์แอป
 
 ```bash
 cd client
@@ -22,33 +51,26 @@ cd client
 
 ```bash
 npm install
-# หรือ
-yarn install
-# หรือ
-pnpm install
-# หรือ
-bun install
 ```
 
-## วิธีรันโปรเจกต์
-
-- โหมดพัฒนา (Development)
+3. โหมดพัฒนา (Development)
 
 ```bash
 npm run dev
-# หรือ
-yarn dev
-# หรือ
-pnpm dev
-# หรือ
-bun dev
 ```
 
-จากนั้นเปิดเบราว์เซอร์ที่ http://localhost:3000
+เปิดที่ `http://localhost:3000`
 
-- โหมดใช้งานจริง (Production)
+4. โหมด Production (รันด้วย Next server)
 
 ```bash
 npm run build
 npm run start
 ```
+
+## Docker Files
+
+- `Dockerfile`: multi-stage build (Node build -> Nginx runtime)
+- `nginx/default.conf`: config สำหรับ serve static และ fallback route
+- `docker-compose.yml`: map พอร์ต `3001:80`
+- `.dockerignore`: ลดขนาด build context
