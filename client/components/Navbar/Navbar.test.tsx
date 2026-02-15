@@ -2,19 +2,16 @@ import { render, screen } from "@testing-library/react";
 import Navbar from "./Navbar.component.";
 
 describe("Navbar", () => {
-  it("renders Social brand", () => {
+  it("renders Portfolio brand", () => {
     render(<Navbar />);
 
-    expect(screen.getByRole("link", { name: "Social" })).toBeInTheDocument();
+    expect(screen.getByText("Portfolio")).toBeInTheDocument();
   });
 
-  it("does not render center navigation links when section is commented out", () => {
+  it("does not render navigation links", () => {
     render(<Navbar />);
 
-    expect(screen.queryByRole("link", { name: /overview/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /analytics/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /campaigns/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: /audience/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
   it("does not render removed controls", () => {

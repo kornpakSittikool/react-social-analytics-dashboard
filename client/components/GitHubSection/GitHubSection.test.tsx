@@ -120,7 +120,7 @@ describe("GitHubSection", () => {
       "href",
       "https://github.com/octocat/beta",
     );
-    expect(screen.getByText("No details")).toBeInTheDocument();
+    expect(screen.getByText("No description")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /forked/i })).not.toBeInTheDocument();
   });
 
