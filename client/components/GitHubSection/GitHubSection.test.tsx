@@ -47,9 +47,9 @@ describe("GitHubSection", () => {
     const repos: GitHubRepo[] = [
       {
         id: 1,
-        name: "alpha",
-        description: "Alpha repo",
-        html_url: "https://github.com/octocat/alpha",
+        name: "JsonCraft",
+        description: "JsonCraft repo",
+        html_url: "https://github.com/octocat/jsoncraft",
         stargazers_count: 50,
         forks_count: 5,
         language: "TypeScript",
@@ -103,7 +103,22 @@ describe("GitHubSection", () => {
     const chart = screen.getByAltText("GitHub contributions chart");
     expect(chart).toHaveAttribute("src", "https://ghchart.rshah.org/example");
 
-    expect(screen.getByRole("link", { name: /alpha/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /preview jsoncraft/i })).toHaveAttribute(
+      "href",
+      "/mono?domin_url=http%3A%2F%2Flocalhost%3A4000%2F",
+    );
+    expect(screen.getByRole("link", { name: /preview beta/i })).toHaveAttribute(
+      "href",
+      "/mono?domin_url=",
+    );
+    expect(screen.getByRole("link", { name: /preview coding jsoncraft/i })).toHaveAttribute(
+      "href",
+      "https://github.com/octocat/jsoncraft",
+    );
+    expect(screen.getByRole("link", { name: /preview coding beta/i })).toHaveAttribute(
+      "href",
+      "https://github.com/octocat/beta",
+    );
     expect(screen.queryByRole("link", { name: /forked/i })).not.toBeInTheDocument();
   });
 

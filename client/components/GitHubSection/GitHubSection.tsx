@@ -10,10 +10,31 @@ import {
 } from "@/app/services/githubService/githubService";
 import { pickTopRepos } from "@/app/utils/pickTopRepos/pickTopRepos";
 import Image from "next/image";
+import Link from "next/link";
 
 type GitHubSectionProps = {
   username: string;
 };
+
+type RepoWithDominUrl = GitHubRepo & {
+  domin_url?: string;
+};
+
+type DominRule = {
+  name: string;
+  domin_url: string;
+};
+
+const dominRules: DominRule[] = [
+  {
+    name: "JsonCraft",
+    domin_url: "http://localhost:4000/",
+  },
+  {
+    name: "NestJs-Microservice",
+    domin_url: "http://localhost:3000/document",
+  },
+];
 
 const formatCount = (value: number) => new Intl.NumberFormat("en-US").format(value ?? 0);
 
@@ -27,6 +48,19 @@ function getPrimaryLanguage(repos: GitHubRepo[]): string {
 
   const topLanguage = [...frequency.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
   return topLanguage ?? "Not specified";
+}
+
+function addDominUrlToMatchedRepos(repos: GitHubRepo[], rules: DominRule[]): RepoWithDominUrl[] {
+  const rulesByName = new Map(rules.map((rule) => [rule.name, rule.domin_url]));
+
+  return repos.map((repo) => {
+    const domin_url = rulesByName.get(repo.name);
+    return domin_url ? { ...repo, domin_url } : repo;
+  });
+}
+
+function buildMonoUrl(dominUrl?: string): string {
+  return `/mono?domin_url=${encodeURIComponent(dominUrl ?? "")}`;
 }
 
 export default function GitHubSection({ username }: GitHubSectionProps) {
@@ -74,6 +108,11 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
   }, [username]);
 
   const topRepos = useMemo(() => pickTopRepos(repos, 6), [repos]);
+  const topReposWithDomin = useMemo(
+    () => addDominUrlToMatchedRepos(topRepos, dominRules),
+    [topRepos],
+  );
+
   const contributionsSvg = useMemo(() => getContributionsSvgUrl(username), [username]);
 
   const stats = useMemo(() => {
@@ -217,18 +256,15 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
                 <div key={index} className="h-40 animate-pulse rounded-2xl bg-zinc-800/50" />
               ))}
             </div>
-          ) : topRepos.length === 0 ? (
+          ) : topReposWithDomin.length === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-[#0d1421]/70 p-4 text-zinc-300 sm:p-6">
               No repositories available.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {topRepos.map((repo, index) => (
-                <a
+              {topReposWithDomin.map((repo, index) => (
+                <div
                   key={repo.id}
-                  href={repo.html_url}
-                  target="_blank"
-                  rel="noreferrer"
                   className="fade-up group relative overflow-hidden rounded-2xl border border-white/10 bg-[#0d1421]/75 p-4 shadow-[0_16px_35px_rgba(0,0,0,0.28)] transition-all duration-300 hover:-translate-y-1 hover:border-white/35 hover:bg-white/10 sm:p-5"
                   style={{ animationDelay: `${120 + index * 80}ms` }}
                 >
@@ -236,10 +272,6 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
                   <div className="font-bold tracking-tight text-zinc-50 transition-colors group-hover:text-white">
                     {repo.name}
                   </div>
-                  <p className="mt-2 min-h-[44px] text-sm leading-relaxed text-zinc-300">
-                    {repo.description ?? "No description provided."}
-                  </p>
-
                   <div className="mt-4 flex items-center gap-3 text-xs font-semibold text-zinc-300">
                     <span className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1">
                       STAR {formatCount(repo.stargazers_count)}
@@ -247,13 +279,29 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
                     <span className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1">
                       FORK {formatCount(repo.forks_count)}
                     </span>
+                    <Link
+                      href={buildMonoUrl(repo.domin_url)}
+                      aria-label={`Preview ${repo.name}`}
+                      className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 transition-colors hover:bg-white/10"
+                    >
+                      Preview
+                    </Link>
+                    <a
+                      href={repo.html_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`Preview Coding ${repo.name}`}
+                      className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 transition-colors hover:bg-white/10"
+                    >
+                      Preview Coding
+                    </a>
                   </div>
 
                   <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
                     <span className="h-2 w-2 rounded-full bg-cyan-400" />
                     {repo.language ?? "Not specified"}
                   </div>
-                </a>
+                </div>
               ))}
             </div>
           )}

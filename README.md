@@ -21,23 +21,37 @@
 
 โปรเจกต์นี้ build ฝั่ง `client` เป็น static export แล้วให้ `nginx` serve ผ่าน container
 
-1. Build และ start container
+1. Build image ก่อน
 
 ```bash
-docker compose up --build
+docker compose build
 ```
 
-2. เปิดใช้งานที่
+2. Start container
+
+```bash
+docker compose up -d
+```
+
+3. เปิดใช้งานที่
 
 ```text
 http://localhost:3001
 ```
 
-3. Stop container
+4. Stop container
 
 ```bash
 docker compose down
 ```
+
+> ถ้าแก้โค้ดแล้วเหมือนยังเป็นของเดิม ให้ใช้:
+>
+> ```bash
+> docker compose down
+> docker compose build --no-cache
+> docker compose up -d --force-recreate
+> ```
 
 ## Run Without Docker
 
