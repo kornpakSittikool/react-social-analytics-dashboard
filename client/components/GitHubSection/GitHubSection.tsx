@@ -272,8 +272,8 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
                   <div className="font-bold tracking-tight text-zinc-50 transition-colors group-hover:text-white">
                     {repo.name}
                   </div>
-                  <div className="font-bold tracking-tight text-zinc-50 transition-colors group-hover:text-white">
-                    {repo.description ?? "No details"}
+                  <div className="font-light tracking-tight text-zinc-50 transition-colors group-hover:text-white">
+                    {repo.description ?? "No description"}
                   </div>
                   <div className="mt-4 flex items-center gap-3 text-xs font-semibold text-zinc-300">
                     <span className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1">
