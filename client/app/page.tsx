@@ -3,6 +3,9 @@ import Navbar from "@/components/Navbar/Navbar.component.";
 
 export default function Home() {
   return (
-    <Navbar />
+    <div className="min-h-screen bg-gray-900 mb-10">
+      <Navbar />
+      <GitHubSection username="kornpakSittikool" />
+    </div>
   );
 }
