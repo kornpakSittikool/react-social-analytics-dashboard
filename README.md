@@ -1,4 +1,4 @@
-﻿# React Social Analytics Dashboard
+# React Social Analytics Dashboard
 
 แดชบอร์ดสำหรับสรุปและวิเคราะห์ข้อมูลโซเชียล สร้างด้วย Next.js และ React
 
@@ -11,6 +11,12 @@
 - ESLint 9
 - Nginx (serve static build)
 - Docker Compose
+
+## Project Structure
+
+- `client/`: Next.js app (UI + unit tests)
+- `e2e/`: Playwright end-to-end tests
+- `.github/workflows/playwright.yml`: GitHub Actions workflow สำหรับ e2e
 
 ## Prerequisites
 
@@ -45,13 +51,13 @@ http://localhost:3001
 docker compose down
 ```
 
-> ถ้าแก้โค้ดแล้วเหมือนยังเป็นของเดิม ให้ใช้:
->
-> ```bash
-> docker compose down
-> docker compose build --no-cache
-> docker compose up -d --force-recreate
-> ```
+ถ้าแก้โค้ดแล้วเหมือนยังเป็นของเดิม ให้ใช้:
+
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up -d --force-recreate
+```
 
 ## Run Without Docker
 
@@ -81,6 +87,50 @@ npm run dev
 npm run build
 npm run start
 ```
+
+## Testing
+
+1. Unit test (client)
+
+```bash
+cd client
+npm ci
+npm test
+```
+
+2. E2E test (Playwright)
+
+```bash
+cd e2e
+npm ci
+npm run test:chromium
+```
+
+3. เปิด Playwright UI (optional)
+
+```bash
+cd e2e
+npm run test:ui
+```
+
+หมายเหตุ:
+- Playwright จะ start dev server ให้เองที่ `http://127.0.0.1:4301` ผ่าน `e2e/playwright.config.ts`
+- ถ้าพอร์ต test ถูกใช้งานอยู่ สามารถเคลียร์ได้ด้วย `cd e2e && npm run kill:test-port`
+- เคส `JsonCraft` รองรับทั้งกรณี service `http://localhost:4000/` พร้อมใช้งาน และกรณีไม่พร้อมใช้งาน (error flow)
+
+## CI (GitHub Actions)
+
+workflow e2e จะทำงานเมื่อ:
+- push เข้า `main`
+- เปิด PR เข้า `main`
+
+ไฟล์ workflow ต้องอยู่ที่:
+- `/.github/workflows/playwright.yml`
+
+ถ้า push แล้วไม่เห็น workflow ทำงาน ให้เช็ก:
+1. path ไฟล์ workflow อยู่ที่ root (`.github/workflows`) จริง
+2. Repo Settings > Actions เปิดใช้งาน
+3. push/PR ไปที่ branch `main` ตามเงื่อนไข trigger
 
 ## Docker Files
 

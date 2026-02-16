@@ -1,3 +1,6 @@
 cd client
 npm test
 npm run build
+
+cd ../e2e
+npm run test:chromium
