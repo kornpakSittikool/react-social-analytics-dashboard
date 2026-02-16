@@ -24,6 +24,7 @@ const mockGetGitHubRepos = getGitHubRepos as jest.MockedFunction<typeof getGitHu
 describe("GitHubSection", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    window.localStorage.clear();
     mockGetContributionsSvgUrl.mockReturnValue("https://ghchart.rshah.org/example");
   });
 
@@ -108,18 +109,21 @@ describe("GitHubSection", () => {
       "href",
       "/mono?domin_url=http%3A%2F%2Flocalhost%3A4000%2F",
     );
-    expect(screen.getByRole("link", { name: /preview beta/i })).toHaveAttribute(
-      "href",
-      "/mono?domin_url=",
-    );
-    expect(screen.getByRole("link", { name: /preview coding jsoncraft/i })).toHaveAttribute(
+    expect(screen.queryByRole("link", { name: /preview beta/i })).not.toBeInTheDocument();
+    expect(screen.getByLabelText(/preview unavailable beta/i)).toBeInTheDocument();
+    const previewCodingJsonCraft = screen.getByRole("link", { name: /preview coding jsoncraft/i });
+    expect(previewCodingJsonCraft).toHaveAttribute(
       "href",
       "https://github.com/octocat/jsoncraft",
     );
-    expect(screen.getByRole("link", { name: /preview coding beta/i })).toHaveAttribute(
+    expect(previewCodingJsonCraft).not.toHaveAttribute("target");
+
+    const previewCodingBeta = screen.getByRole("link", { name: /preview coding beta/i });
+    expect(previewCodingBeta).toHaveAttribute(
       "href",
       "https://github.com/octocat/beta",
     );
+    expect(previewCodingBeta).not.toHaveAttribute("target");
     expect(screen.getByText("No description")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /forked/i })).not.toBeInTheDocument();
   });
@@ -132,5 +136,42 @@ describe("GitHubSection", () => {
 
     expect(await screen.findByText(/Failed to load GitHub data: Boom/i)).toBeInTheDocument();
     expect(screen.getByText("No profile data found.")).toBeInTheDocument();
+  });
+
+  it("uses cached data and skips network calls when cache exists", async () => {
+    const cachedProfile: GitHubProfile = {
+      login: "octocat",
+      name: "Cached Cat",
+      avatar_url: "https://avatars.githubusercontent.com/u/1?v=4",
+      html_url: "https://github.com/octocat",
+      bio: "Cached bio",
+    };
+
+    const cachedRepos: GitHubRepo[] = [
+      {
+        id: 1,
+        name: "JsonCraft",
+        description: "Cached repo",
+        html_url: "https://github.com/octocat/jsoncraft",
+        stargazers_count: 10,
+        forks_count: 2,
+        language: "TypeScript",
+        fork: false,
+      },
+    ];
+
+    window.localStorage.setItem(
+      "github-section-cache:v1:octocat",
+      JSON.stringify({
+        profile: cachedProfile,
+        repos: cachedRepos,
+      }),
+    );
+
+    render(<GitHubSection username="octocat" />);
+
+    expect(await screen.findByText("Cached Cat")).toBeInTheDocument();
+    expect(mockGetGitHubProfile).not.toHaveBeenCalled();
+    expect(mockGetGitHubRepos).not.toHaveBeenCalled();
   });
 });

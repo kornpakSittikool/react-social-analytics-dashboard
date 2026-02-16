@@ -25,6 +25,11 @@ type DominRule = {
   domin_url: string;
 };
 
+type GitHubSectionCache = {
+  profile: GitHubProfile;
+  repos: GitHubRepo[];
+};
+
 const dominRules: DominRule[] = [
   {
     name: "JsonCraft",
@@ -59,8 +64,55 @@ function addDominUrlToMatchedRepos(repos: GitHubRepo[], rules: DominRule[]): Rep
   });
 }
 
-function buildMonoUrl(dominUrl?: string): string {
-  return `/mono?domin_url=${encodeURIComponent(dominUrl ?? "")}`;
+function isValidDominUrl(dominUrl?: string): dominUrl is string {
+  if (!dominUrl) return false;
+
+  try {
+    const parsed = new URL(dominUrl);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function buildMonoUrl(dominUrl: string): string {
+  return `/mono?domin_url=${encodeURIComponent(dominUrl)}`;
+}
+
+const githubSectionCachePrefix = "github-section-cache:v1";
+
+function getGitHubSectionCacheKey(username: string): string {
+  return `${githubSectionCachePrefix}:${username}`;
+}
+
+function readGitHubSectionCache(cacheKey: string): GitHubSectionCache | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.localStorage.getItem(cacheKey);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<GitHubSectionCache>;
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!parsed.profile || !Array.isArray(parsed.repos)) return null;
+
+    return {
+      profile: parsed.profile as GitHubProfile,
+      repos: parsed.repos as GitHubRepo[],
+    };
+  } catch {
+    window.localStorage.removeItem(cacheKey);
+    return null;
+  }
+}
+
+function writeGitHubSectionCache(cacheKey: string, data: GitHubSectionCache): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(cacheKey, JSON.stringify(data));
+  } catch {
+  }
 }
 
 export default function GitHubSection({ username }: GitHubSectionProps) {
@@ -72,6 +124,16 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
   useEffect(() => {
     if (!username) return;
     let cancelled = false;
+    const cacheKey = getGitHubSectionCacheKey(username);
+    const cachedData = readGitHubSectionCache(cacheKey);
+
+    if (cachedData) {
+      setProfile(cachedData.profile);
+      setRepos(cachedData.repos);
+      setError("");
+      setLoading(false);
+      return;
+    }
 
     async function load() {
       try {
@@ -90,6 +152,10 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
         if (cancelled) return;
         setProfile(fetchedProfile);
         setRepos(fetchedRepos);
+        writeGitHubSectionCache(cacheKey, {
+          profile: fetchedProfile,
+          repos: fetchedRepos,
+        });
       } catch (unknownError) {
         if (!cancelled) {
           setError(
@@ -282,17 +348,25 @@ export default function GitHubSection({ username }: GitHubSectionProps) {
                     <span className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1">
                       FORK {formatCount(repo.forks_count)}
                     </span>
-                    <Link
-                      href={buildMonoUrl(repo.domin_url)}
-                      aria-label={`Preview ${repo.name}`}
-                      className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 transition-colors hover:bg-white/10"
-                    >
-                      Preview
-                    </Link>
+                    {isValidDominUrl(repo.domin_url) ? (
+                      <Link
+                        href={buildMonoUrl(repo.domin_url)}
+                        prefetch={false}
+                        aria-label={`Preview ${repo.name}`}
+                        className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 transition-colors hover:bg-white/10"
+                      >
+                        Preview
+                      </Link>
+                    ) : (
+                      <span
+                        aria-label={`Preview unavailable ${repo.name}`}
+                        className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 text-zinc-500"
+                      >
+                        Preview N/A
+                      </span>
+                    )}
                     <a
                       href={repo.html_url}
-                      target="_blank"
-                      rel="noreferrer"
                       aria-label={`Preview Coding ${repo.name}`}
                       className="rounded-full border border-white/12 bg-white/5 px-2.5 py-1 transition-colors hover:bg-white/10"
                     >
