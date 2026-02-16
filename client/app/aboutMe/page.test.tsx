@@ -66,6 +66,5 @@ describe("AboutMePage", () => {
     expect(screen.getByText("MongoDB")).toBeInTheDocument();
     expect(screen.getByAltText("Next.js logo")).toBeInTheDocument();
     expect(screen.getByAltText("Docker logo")).toBeInTheDocument();
-    expect(screen.getAllByText("Normal")).toHaveLength(2);
   });
 });

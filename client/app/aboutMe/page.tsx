@@ -7,11 +7,9 @@ type ExperienceItem = {
     bullets: string[];
 };
 
-type SkillLevel = "Good" | "Normal" | "Low";
 
 type SkillItem = {
     name: string;
-    level: SkillLevel;
     logo: string;
 };
 
@@ -49,21 +47,21 @@ const experienceItems: ExperienceItem[] = [
 
 const skillColumns: SkillItem[][] = [
     [
-        { name: "Next.js", level: "Good", logo: "/skills/nextjs.svg" },
-        { name: "React.js", level: "Good", logo: "/skills/react.svg" },
-        { name: "Angular", level: "Good", logo: "/skills/angular.svg" },
-        { name: "Express.js", level: "Good", logo: "/skills/express.svg" },
+        { name: "Next.js", logo: "/skills/nextjs.svg" },
+        { name: "React.js", logo: "/skills/react.svg" },
+        { name: "Angular", logo: "/skills/angular.svg" },
+        { name: "Express.js", logo: "/skills/express.svg" },
     ],
     [
-        { name: "TypeScript", level: "Good", logo: "/skills/typescript.svg" },
-        { name: "JavaScript", level: "Good", logo: "/skills/javascript.svg" },
-        { name: "Docker", level: "Low", logo: "/skills/docker.svg" },
+        { name: "TypeScript", logo: "/skills/typescript.svg" },
+        { name: "JavaScript", logo: "/skills/javascript.svg" },
+        { name: "Docker", logo: "/skills/docker.svg" },
     ],
     [
-        { name: "Postgres", level: "Low", logo: "/skills/postgresql.svg" },
-        { name: "MongoDB", level: "Low", logo: "/skills/mongodb.svg" },
-        { name: "Tailwind", level: "Normal", logo: "/skills/tailwindcss.svg" },
-        { name: "Bootstrap", level: "Normal", logo: "/skills/bootstrap.svg" },
+        { name: "Postgres", logo: "/skills/postgresql.svg" },
+        { name: "MongoDB", logo: "/skills/mongodb.svg" },
+        { name: "Tailwind", logo: "/skills/tailwindcss.svg" },
+        { name: "Bootstrap", logo: "/skills/bootstrap.svg" },
     ],
 ];
 
@@ -164,7 +162,6 @@ export default function AboutMePage() {
                                                 </span>
                                                 <span className="truncate text-[15px] text-zinc-200">{skill.name}</span>
                                             </div>
-                                            <span className="text-[15px] text-zinc-300">{skill.level}</span>
                                         </div>
                                     ))}
                                 </div>
